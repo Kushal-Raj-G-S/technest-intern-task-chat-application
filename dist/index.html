@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechNest Chat - Real-time Messaging</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💬%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <h1><i class="fas fa-comments"></i> TechNest Chat</h1>
+                <p>Connect instantly with real-time messaging</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username (2-20 characters)" required maxlength="20">
+                    <div class="input-help">Only letters, numbers, and underscores allowed</div>
+                </div>
+                <div class="form-group">
+                    <label for="room">Chat Room</label>
+                    <select id="room" required>
+                        <option value="">Select a room</option>
+                        <option value="general">General</option>
+                        <option value="tech">Tech Talk</option>
+                        <option value="random">Random</option>
+                        <option value="help">Help & Support</option>
+                    </select>
+                </div>
+                <button type="submit" class="join-btn">
+                    <i class="fas fa-sign-in-alt"></i> Join Chat
+                </button>
+            </form>
+            <div class="community-rules">
+                <h3><i class="fas fa-shield-alt"></i> Community Guidelines</h3>
+                <ul>
+                    <li>Be respectful to all users</li>
+                    <li>No spam or excessive messaging</li>
+                    <li>No inappropriate or offensive content</li>
+                    <li>No personal attacks or harassment</li>
+                    <li>Keep discussions relevant to the room topic</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div id="verificationModal" class="modal verification-modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-check"></i> Human Verification</h3>
+            </div>
+            <div class="modal-body">
+                <p>Please answer this simple question to verify you're human:</p>
+                <div id="verificationQuestion" class="verification-question"></div>
+                <input type="text" id="verificationAnswer" placeholder="Your answer" class="verification-input">
+                <div id="verificationError" class="error-message hidden"></div>
+            </div>
+            <div class="modal-actions">
+                <button id="submitVerification" class="btn-primary">
+                    <i class="fas fa-check"></i> Verify
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Screen -->
+    <div id="chatScreen" class="screen">
+        <div class="chat-container">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="chat-info">
+                    <h2 id="roomName">General</h2>
+                    <span id="userCount">0 users online</span>
+                </div>
+                <div class="chat-actions">
+                    <button id="toggleUsers" class="action-btn">
+                        <i class="fas fa-users"></i>
+                    </button>
+                    <button id="leaveChat" class="action-btn leave-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-main">
+                <!-- Users Sidebar -->
+                <div id="usersSidebar" class="users-sidebar">
+                    <h3>Online Users</h3>
+                    <div id="usersList" class="users-list"></div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="chat-area">
+                    <div id="messagesContainer" class="messages-container">
+                        <div class="welcome-message">
+                            <i class="fas fa-rocket"></i>
+                            <h3>Welcome to TechNest Chat!</h3>
+                            <p>Start chatting with your team members</p>
+                        </div>
+                    </div>
+
+                    <!-- Typing Indicator -->
+                    <div id="typingIndicator" class="typing-indicator hidden">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span id="typingText"></span>
+                    </div>
+
+                    <!-- Message Input -->
+                    <div class="message-input-container">
+                        <form id="messageForm" class="message-form">
+                            <div class="input-group">
+                                <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" maxlength="500">
+                                <button type="submit" class="send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="input-footer">
+                                <div class="char-counter">
+                                    <span id="charCount">0</span>/500 characters
+                                </div>
+                                <div class="input-shortcuts">
+                                    <span class="shortcut">Ctrl+Enter to send</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Private Message Modal -->
+    <div id="privateMessageModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Private Message</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Send a private message to <span id="privateRecipient"></span></p>
+                <textarea id="privateMessageInput" placeholder="Type your private message..." maxlength="500"></textarea>
+                <div class="char-counter">
+                    <span id="privateCharCount">0</span>/500 characters
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="sendPrivateMessage" class="btn-primary">Send</button>
+                <button class="close-modal btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report User Modal -->
+    <div id="reportModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-flag"></i> Report User</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Report <span id="reportUsername"></span> for inappropriate behavior:</p>
+                <select id="reportReason" class="report-select">
+                    <option value="">Select a reason</option>
+                    <option value="spam">Spam or excessive messaging</option>
+                    <option value="harassment">Harassment or bullying</option>
+                    <option value="inappropriate">Inappropriate content</option>
+                    <option value="offensive">Offensive language</option>
+                    <option value="impersonation">Impersonation</option>
+                    <option value="other">Other</option>
+                </select>
+                <textarea id="reportDescription" placeholder="Additional details (optional)" maxlength="200"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button id="submitReport" class="btn-danger">
+                    <i class="fas fa-flag"></i> Submit Report
+                </button>
+                <button class="close-modal btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="modal hidden">
+        <div class="modal-content admin-panel">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-shield"></i> Admin Panel</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="admin-actions">
+                    <div class="admin-section">
+                        <h4>User Actions</h4>
+                        <input type="text" id="adminTarget" placeholder="Username">
+                        <input type="text" id="adminReason" placeholder="Reason (optional)">
+                        <div class="admin-buttons">
+                            <button id="kickUser" class="btn-warning">Kick User</button>
+                            <button id="banUser" class="btn-danger">Ban User</button>
+                            <button id="muteUser" class="btn-secondary">Mute User</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Socket.IO Client -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
